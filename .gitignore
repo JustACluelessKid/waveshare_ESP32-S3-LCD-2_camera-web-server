@@ -22,3 +22,4 @@ components/arduino
 *.tmp
 *.bak
 .DS_Store
+main/secrets.h
