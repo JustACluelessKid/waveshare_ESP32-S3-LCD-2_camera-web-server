@@ -111,3 +111,35 @@ idf.py -p /dev/ttyACM0 flash monitor
 Notes:
 - The build on this workspace created `build/esp32_camera_webserver.bin`. The application partition reported about 1% free space — consider using a larger app partition or trimming components if you need OTA headroom.
 - Replace `main/secrets.h` with your Wi‑Fi credentials before building.
+
+## Secrets & key rotation
+
+This project uses `main/secrets.h` for local Wi‑Fi credentials. Do NOT commit real credentials or private keys into the repository. A safe example file is provided as `main/secrets.h.example` — copy it to `main/secrets.h` and edit it locally before building:
+
+```c
+// main/secrets.h
+const char *ssid = "YOUR_SSID";
+const char *password = "YOUR_PASSWORD";
+```
+
+If any private keys or certificates were exposed (for example PEM or .key files), rotate them immediately. Recommended high-level steps:
+
+- Identify which keys/certificates were exposed (file paths or services that used them).
+- Revoke the exposed certificates with the issuing CA (or treat them as compromised if self-signed).
+- Generate replacement keys/certificates (example using OpenSSL):
+
+```bash
+# Generate a new RSA private key
+openssl genpkey -algorithm RSA -out new_client.key -pkeyopt rsa_keygen_bits:2048
+
+# Create a CSR (submit to your CA) or make a self-signed cert for testing
+openssl req -new -key new_client.key -out new_client.csr -subj "/CN=esp-device"
+openssl req -x509 -days 365 -key new_client.key -in new_client.csr -out new_client.crt
+```
+
+- Replace the deployed certificates/keys in your devices or backends with the newly generated ones. Do NOT commit private keys. Instead, keep private keys in a secure vault (HashiCorp Vault, AWS Secrets Manager, GitHub Secrets, or an encrypted file outside the repo).
+- Inform any collaborators to rotate their local copies and re-clone the repository (history was rewritten). Any previous clones may still contain the exposed files.
+
+If you use a private CA controlled by you, revoke the old certs with your CA tooling (for OpenSSL CA: `openssl ca -revoke <cert.pem>` and update CRL/OCSP as appropriate). For public CAs, follow their revocation procedure.
+
+If you want, I can prepare scripts to generate replacement keys/csrs and a short checklist to perform rotation and notify collaborators. I can also add a short snippet to the README with recommended secure storage options for private keys.
