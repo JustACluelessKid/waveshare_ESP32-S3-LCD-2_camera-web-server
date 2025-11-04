@@ -1,0 +1,7 @@
+# Name, Type, SubType, Offset, Size, Flags
+# Custom partition table: increased application partition for Waveshare ESP32-S3-LCD-2
+# Target flash size: 2MB (0x200000). Adjust if your board has different flash.
+nvs,data,nvs,,0x9000
+otadata,data,ota,,0x2000
+phy_init,data,phy,,0x1000
+factory,app,factory,,0x140000
