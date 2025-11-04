@@ -1,0 +1,24 @@
+# Build artifacts
+/build/
+/build.bak/
+/bootloader/
+/bootloader-prefix/
+/CMakeFiles/
+/esp-idf/
+
+# IDF cache and config
+sdkconfig
+sdkconfig.old
+config.env
+
+# Arduino component local link
+components/arduino
+
+# VS Code
+.vscode/
+
+# Misc
+*.log
+*.tmp
+*.bak
+.DS_Store
